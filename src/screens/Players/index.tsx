@@ -21,6 +21,7 @@ import { Button } from '@components/Button';
 
 import { Container, Form, HeaderList, NumberOfPlayers } from "./styles";
 import { PlayerStorageDTO } from '@storage/player/PlayerStorageDTO';
+import { Loading } from '@components/Loading';
 
 
 type RouteParams = {
@@ -29,6 +30,7 @@ type RouteParams = {
 
 export function Players() {
 
+  const [isLoading, setIsLoading] = useState(true)
   const [newPlayerName, setNewPlayerName] = useState('')
   const [team, setTeam] = useState('Time A');
   const [players, setPlayers] = useState<PlayerStorageDTO[]>([]);
@@ -74,8 +76,10 @@ export function Players() {
 
   async function fetchPlayersByTeam(){
     try {
+          setIsLoading(true)
           const playersByTeam = await playerGetByGroupAndTeam(group,team)
           setPlayers(playersByTeam)
+          setIsLoading(false)
         } catch (error) {
           console.log(error);
           Alert.alert("Pessoas", "Não foi possível carregar os jogadores")
@@ -108,7 +112,7 @@ export function Players() {
   async function handleGroupRemove(){
     Alert.alert(
       "Remover",
-      'Deseja remover o grupo?',
+      'Deseja remover a turma?',
       [
         {text: 'Não', style: 'cancel'},
         {text: 'Sim', onPress: () => groupRemove()}
@@ -168,9 +172,10 @@ export function Players() {
           {players.length}
         </NumberOfPlayers>
       </HeaderList>
-
+      {
+        isLoading ? <Loading />:
       <FlatList 
-        data={players}
+      data={players}
         keyExtractor={item => item.name}
         renderItem={({ item }) => (
           <PlayerCard 
@@ -184,9 +189,10 @@ export function Players() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[{ paddingBottom: 100 }, players.length === 0 && { flex: 1 }]}
       />
+    }
 
       <Button 
-        title="Remover Turma"
+        title="Remover turma"
         type="SECONDARY"
         onPress={handleGroupRemove}
       />
